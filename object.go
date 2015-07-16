@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"github.com/go-gl/mathgl/mgl32"
 )
 
 type Object struct {
@@ -32,15 +33,21 @@ func NewObject(name string, vertices []*Vertex) (*Object, error) {
 	v = append(v, NewVertex(0, 0, 0, "origin"))
 	v = append(v, vertices...)
 
-	return &Object{Verts: v,
+	o := &Object{Verts: v,
 		Origin: 0,
 		Name:   name,
 		cp:     NewPosition(),
-	}, nil
+	}
+	for i := range o.Verts {
+		o.Verts[i].obj = o
+	}
+
+	return o, nil
 }
 
 func (o *Object) AddVertex(vert *Vertex, makeOrigin bool) error {
 	o.Verts = append(o.Verts, vert)
+	vert.obj = o
 	if makeOrigin {
 		return o.SetNewOrigin(len(o.Verts) - 1)
 	}
@@ -63,21 +70,47 @@ func (o *Object) SetNewOrigin(index int) error {
 
 func (o *Object) AbsRotate(x, y, z float32) {
 	t := NewTransform(x, y, z, RotAbs, 0, 0, 0, TranNone)
-	o.oldpos = o.cp.Copy()
-	t.TransformPosition(o.cp)
-	o.transformVerts()
+	o.transformVerts(t)
+}
+
+//Rotate the object in the absolute reference frame
+//A combination of two 90 degree rotates on the X axis
+//should be equal to 1 180 degree rotate on the X axis
+func (o *Object) RelRotateAbsRef(x, y, z float32) {
+	t := NewTransform(x, y, z, RotAddAbs, 0, 0, 0, TranNone)
+	o.transformVerts(t)
 }
 
 func (o *Object) AbsTranslate(x, y, z float32) {
 	t := NewTransform(0, 0, 0, RotNone, x, y, z, TranAbs)
-	o.oldpos = o.cp.Copy()
-	t.TransformPosition(o.cp)
-	o.transformVerts()
+	o.transformVerts(t)
 }
 
-func (o *Object) transformVerts() {
+func (o *Object) RelTranslate(x, y, z float32) {
+	t := NewTransform(0, 0, 0, RotNone, x, y, z, TranRel)
+	o.transformVerts(t)
+}
+
+
+//This sets the translation offset of the object in world space
+//The origin point of the object is set to these coordinates
+//All absolute translations will happen from this point.
+func (o *Object) SetObjectOffset(x, y, z float32) {
+	offset := &mgl32.Vec3{x, y, z}
 	for i := range o.Verts {
-		o.Verts[i].transformToPosition(o.cp)
+		o.Verts[i].setOffset(offset)
+	}
+}
+
+func (o *Object) transformVerts(t *Transform) {
+	o.oldpos = o.cp.Copy()
+	t.TransformPosition(o.cp)
+	o.transVertsPos()
+}
+
+func (o *Object) transVertsPos() {
+	for i := range o.Verts {
+		o.Verts[i].TransformToPosition(o.cp)
 	}
 }
 
@@ -88,12 +121,12 @@ func (o *Object) CopyCurrentPosition() *Position {
 func (o *Object) SetPosition(pos *Position) {
 	o.oldpos = o.cp.Copy()
 	o.cp.Overwrite(pos)
-	o.transformVerts()
+	o.transVertsPos()
 }
 
 func (o *Object) Undo() {
 	o.cp.Overwrite(o.oldpos)
 	for i := range o.Verts {
-		o.Verts[i].undo()
+		o.Verts[i].Undo()
 	}
 }

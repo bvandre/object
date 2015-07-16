@@ -19,6 +19,22 @@ func NewPosition() *Position {
 	}
 }
 
+func PositionOfVertex(v *Vertex) *Position {
+	t := mgl32.Vec3{-v.cvec.X(), -v.cvec.Y(), -v.cvec.Z()}
+	return &Position{
+		trans: t,
+		quat:  v.obj.cp.quat.Inverse(),
+	}
+}
+
+func PositionOfVertexNoRotation(v *Vertex) *Position {
+	t := mgl32.Vec3{-v.cvec.X(), -v.cvec.Y(), -v.cvec.Z()}
+	return &Position{
+		trans: t,
+		quat:  mgl32.QuatIdent(),
+	}
+}
+
 func (p *Position) String() string {
 	return fmt.Sprintf("Position Quat: w:%f, i:%f, j%f, k%f Translation x:%f, y%f, z%f",
 		p.quat.W, p.quat.X(), p.quat.Y(), p.quat.Z(),
