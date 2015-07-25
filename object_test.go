@@ -2,7 +2,6 @@ package object
 
 import (
 	"testing"
-	"fmt"
 )
 
 var verts []*Vertex = []*Vertex{
@@ -25,12 +24,13 @@ var Pi_4Rot []*Vertex = []*Vertex{
 
 var (
 	XPiRotX *Vertex = NewVertex(1, 0, 0, "x")
-	X45Rot *Vertex = NewVertex(-1, 0, 0, "x")
+	X45Rot  *Vertex = NewVertex(0.5, 0.5, -0.707107, "x")
 
 	YPiRotX *Vertex = NewVertex(0, -1, 0, "y")
-	Y45Rot *Vertex = NewVertex(0, 1, 0, "y")
+	Y45Rot  *Vertex = NewVertex(-0.146447, 0.853553, 0.5, "y")
+
 	ZPiRotX *Vertex = NewVertex(0, 0, -1, "z")
-	Z45Rot *Vertex = NewVertex(0, 0, -1, "z")
+	Z45Rot  *Vertex = NewVertex(0.853553, -0.146447, 0.5, "z")
 )
 
 func TestObjectCreation(t *testing.T) {
@@ -54,7 +54,6 @@ func TestAbsoluteObjectRotation(t *testing.T) {
 	vertexSliceTest(o.Verts, PiRotX, errPrefix, t)
 
 	o.AbsRotate(45, 45, 45)
-	fmt.Println(o.cp.quat)
 	vertexSliceTest(o.Verts, Pi_4Rot, errPrefix, t)
 }
 
@@ -112,7 +111,7 @@ func TestObjectSetPosition(t *testing.T) {
 	vertexSliceTest(o.Verts, comp, errPrefix, t)
 	o.AbsRotate(5, 5, 5)
 	o.AbsTranslate(4, 4, 4)
-		o.SetPosition(p)
+	o.SetPosition(p)
 	comp2 := []*Vertex{
 		NewVertex(2, 0, 0, "x"),
 		NewVertex(1, -1, 0, "y"),
