@@ -47,21 +47,15 @@ const (
 //transabs is true when this translation will be applied in relation to the current
 //translation ZXY YZX XYZ
 func NewTransform(x, y, z float32, rot RotationType, xt, yt, zt float32, tran TranslationType) *Transform {
-	//m := mgl32.HomogRotate3DX(mgl32.DegToRad(x)).Mul4(mgl32.HomogRotate3DY(mgl32.DegToRad(y))).Mul4(mgl32.HomogRotate3DZ(mgl32.DegToRad(z)))
-	//q := mgl32.QuatRotate(mgl32.DegToRad(z), mgl32.Vec3{0,0,1}).Mul(mgl32.QuatRotate(mgl32.DegToRad(y), mgl32.Vec3{0, 1, 0})).Mul(mgl32.QuatRotate(mgl32.DegToRad(x), mgl32.Vec3{1, 0, 0}))
-	//q := mgl32.QuatRotate(mgl32.DegToRad(z), mgl32.Vec3{0,0,1})
-	//q = mgl32.QuatRotate(mgl32.DegToRad(y), mgl32.Vec3{0, 1, 0}).Mul(q)
-	//q = mgl32.QuatRotate(mgl32.DegToRad(x), mgl32.Vec3{1, 0, 0}).Mul(q)
 	return &Transform{
-		//quat:  mgl32.Mat4ToQuat(m),
-		quat: mgl32.AnglesToQuat(mgl32.DegToRad(z), mgl32.DegToRad(y), mgl32.DegToRad(x), mgl32.ZYX),
-		//quat: q,
+		quat:  mgl32.AnglesToQuat(mgl32.DegToRad(z), mgl32.DegToRad(y), mgl32.DegToRad(x), mgl32.ZYX),
 		rType: rot,
 		trans: mgl32.Vec3{xt, yt, zt},
 		tType: tran,
 	}
 }
 
+//Updates a Position to the transform represented by t
 func (t *Transform) TransformPosition(p *Position) {
 	switch t.rType {
 	case RotAbs:
