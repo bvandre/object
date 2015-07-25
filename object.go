@@ -1,9 +1,6 @@
 package object
 
-import (
-	"fmt"
-	"github.com/go-gl/mathgl/mgl32"
-)
+import "fmt"
 
 type Object struct {
 	//Verts are the vertices of the object
@@ -63,7 +60,7 @@ func (o *Object) SetNewOrigin(index int) error {
 	}
 	o.Origin = index
 	for i := range o.Verts {
-		o.Verts[i].setNewRotationOrigin(o.Verts[index])
+		o.Verts[i].SetRotationOriginVert(o.Verts[index])
 	}
 	return nil
 }
@@ -91,14 +88,12 @@ func (o *Object) RelTranslate(x, y, z float32) {
 	o.transformVerts(t)
 }
 
-
 //This sets the translation offset of the object in world space
 //The origin point of the object is set to these coordinates
 //All absolute translations will happen from this point.
 func (o *Object) SetObjectOffset(x, y, z float32) {
-	offset := &mgl32.Vec3{x, y, z}
 	for i := range o.Verts {
-		o.Verts[i].setOffset(offset)
+		o.Verts[i].SetOffsetOrigin(x, y, z)
 	}
 }
 
