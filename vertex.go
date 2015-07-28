@@ -51,8 +51,10 @@ type Vertex struct {
 	id int
 }
 
-var vertexid int = 0
+var vertexid int
 
+//NewVertex creates and initializes a Vertex.  A unique
+//id is generated for each Vertex created by this method.
 func NewVertex(x, y, z float32, name string) *Vertex {
 	i := vertexid
 	vertexid += 1
@@ -67,7 +69,7 @@ func NewVertex(x, y, z float32, name string) *Vertex {
 	}
 }
 
-//Sets Object that this vertex is associated with
+//SetObject sets Object that this vertex is associated with
 func (v *Vertex) SetObject(o *Object) {
 	v.obj = o
 }
@@ -76,14 +78,14 @@ func (v *Vertex) String() string {
 	return fmt.Sprintf("Vertex: %s CurrentLocation x:%f y:%f z:%f", v.Name, v.cvec.X(), v.cvec.Y(), v.cvec.Z())
 }
 
-//Sets the point the the vertex is rotated about based on the current
+//SetRotationOriginVert sets the point the the vertex is rotated about based on the current
 //position of newRot
 func (v *Vertex) SetRotationOriginVert(newRot *Vertex) {
 	v.rtvec = newRot.copy()
 	v.rvec = v.rvec.Sub(newRot.vec)
 }
 
-//Moves the home position of the vertex
+//SetOffsetOrigin moves the home position of the vertex
 //what this means is that when the vertex is translated
 //absolutely it is from this point in space
 func (v *Vertex) SetOffsetOrigin(x, y, z float32) {
@@ -91,7 +93,7 @@ func (v *Vertex) SetOffsetOrigin(x, y, z float32) {
 	v.cvec = v.vec.Add(v.tvec)
 }
 
-//Moves the vertex to the position p.  All rotations
+//TransformToPosition moves the vertex to the position p.  All rotations
 //are around the origin unless the Rotation Origin
 //is set, in which case it is rotated about that.  It
 //is translated absolutely to the origin 0, 0, 0 unless
@@ -104,7 +106,7 @@ func (v *Vertex) TransformToPosition(p *Position) {
 	v.cvec = v.cvec.Add(p.trans)
 }
 
-//Resets the vertex to the position previous the
+//Undo resets the vertex to the position previous the
 //last call to TransformToPosition.  The vertex
 //only stores 1 previous position, so multiple
 //calls to this do nothing.
@@ -112,13 +114,13 @@ func (v *Vertex) Undo() {
 	v.cvec = v.oldvec
 }
 
-//Calculates whether the current positions of vertexes v
+//ApproxEqual calculates whether the current positions of vertexes v
 //and v2 are approximately equal
 func (v *Vertex) ApproxEqual(v2 *Vertex) bool {
 	return v.cvec.ApproxEqualThreshold(v2.cvec, 1e-3)
 }
 
-//Calculates whether the vertex v is less than
+//Less calculates whether the vertex v is less than
 //vertex v2.  It does this by first comparing X
 //then Y then Z coordinates.
 func (v *Vertex) Less(v2 *Vertex) bool {
@@ -134,34 +136,33 @@ func (v *Vertex) Less(v2 *Vertex) bool {
 		} else {
 			if v.cvec.Z() < v.cvec.Z() {
 				return true
-			} else {
-				return false
 			}
+			return false
 		}
 	}
 }
 
-//Computes the distance between the two vertexes
+//DistanceToVertex computes the distance between the two vertexes
 func (v *Vertex) DistanceToVertex(v2 *Vertex) float32 {
 	return v.cvec.Sub(v2.cvec).Len()
 }
 
-//Returns the X coordinate of the current position
+//X returns the X coordinate of the current position
 func (v *Vertex) X() float32 {
 	return v.cvec.X()
 }
 
-//Returns the Y coordinate of the current position
+//Y returns the Y coordinate of the current position
 func (v *Vertex) Y() float32 {
 	return v.cvec.Y()
 }
 
-//Returns the Z coordinate of the current position
+//Z returns the Z coordinate of the current position
 func (v *Vertex) Z() float32 {
 	return v.cvec.Z()
 }
 
-//returns the unique id given to every new Vertex
+//Id returns the unique id given to every new Vertex
 func (v *Vertex) Id() int {
 	return v.id
 }
@@ -170,7 +171,7 @@ func (v *Vertex) copy() mgl32.Vec3 {
 	return mgl32.Vec3{v.X(), v.Y(), v.Z()}
 }
 
-//Returns the spherical coordinates of the current Position
+//Spherical returns the spherical coordinates of the current Position
 func (v *Vertex) Spherical() (r, theta, phi float32) {
 	r, theta, phi = mgl32.CartesianToSpherical(v.cvec)
 	theta = mgl32.RadToDeg(theta)
@@ -178,18 +179,19 @@ func (v *Vertex) Spherical() (r, theta, phi float32) {
 	return
 }
 
-//Gets the dot product of the Vertexes current position
+//Dot gets the dot product of the Vertexes current position
 func (v *Vertex) Dot(v2 *Vertex) float32 {
 	return v.cvec.Dot(v2.cvec)
 }
 
-//Computes the angle between the current position and the previous position
+//DotAngle computes the angle between the current position and the previous position
 func (v *Vertex) DotAngle() float32 {
 	return mgl32.RadToDeg(float32(math.Acos(float64(v.cvec.Dot(v.oldvec) / (v.cvec.Len() * v.oldvec.Len())))))
 }
 
-//Computes the change in distance to the current position and the previous position
-//of the vertex
+//DistChange computes the change in distance to the current position and the previous position
+//of the vertex.  A positive change is where the current position length is greater than the
+//previous position
 func (v *Vertex) DistChange() float32 {
 	return v.cvec.Len() - v.oldvec.Len()
 }
