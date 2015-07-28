@@ -36,7 +36,7 @@ func NewObject(name string, vertices []*Vertex) (*Object, error) {
 		cp:     NewPosition(),
 	}
 	for i := range o.Verts {
-		o.Verts[i].obj = o
+		o.Verts[i].SetObject(o)
 	}
 
 	return o, nil
