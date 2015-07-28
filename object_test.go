@@ -16,7 +16,7 @@ var PiRotX []*Vertex = []*Vertex{
 	ZPiRotX,
 }
 
-var Pi_4Rot []*Vertex = []*Vertex{
+var Pi4Rot []*Vertex = []*Vertex{
 	X45Rot,
 	Y45Rot,
 	Z45Rot,
@@ -54,7 +54,7 @@ func TestAbsoluteObjectRotation(t *testing.T) {
 	vertexSliceTest(o.Verts, PiRotX, errPrefix, t)
 
 	o.AbsRotate(45, 45, 45)
-	vertexSliceTest(o.Verts, Pi_4Rot, errPrefix, t)
+	vertexSliceTest(o.Verts, Pi4Rot, errPrefix, t)
 }
 
 func TestRelativeAbsoluteObjectRotation(t *testing.T) {
